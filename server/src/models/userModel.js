@@ -16,17 +16,24 @@ const userSchema = new mongoose.Schema({
     password:{
         type:String,
         trim:true,
-        required:true,
+        required:true
     },
     degreeName:{
         type:String,
         trim:true,
-        enum:[],
+        enum:["B.A.","B.Sc.","B.Com.","M.A.","M.Com."],
+        required:true
     },
     year:{
         type:String,
         trim:true,
         enum:["1st","2nd","3rd","4th"],
+        default: "1st"
+    },
+    role:{
+        type:String,
+        enum:["user","admin"],
+        default: "user"
     },
 },{timestamps:true});
 
