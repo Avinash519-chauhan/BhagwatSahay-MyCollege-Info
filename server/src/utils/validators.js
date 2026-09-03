@@ -8,10 +8,11 @@ const isValid = (value)=> {
     return true;
 }
 
+const isValidObjectId = (id)=> mongoose.Types.ObjectId.isValid(id);
 const isValidFullName = (input)=> /^[a-zA-Z ]+$/.test(input);
 const isValidEmail = (input)=> /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(input);
 // const isValidPhone = (input)=> /^(?:(?:\+|0{0,2})91(\s*|[\-])?|[0]?)?([6789]\d{2}([ -]?)\d{3}([ -]?)\d{4})$/.test(input);
 const isValidPassword = (input)=>  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%?&])[A-Za-z\d@.#$!%?&]{8,20}$/.test(input);
 
 
-module.exports = {isValid, isValidFullName, isValidEmail, isValidPassword};
+module.exports = {isValid, isValidFullName, isValidEmail, isValidPassword, isValidObjectId};

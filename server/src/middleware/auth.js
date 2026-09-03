@@ -22,8 +22,9 @@ const authentication = async(req,res,next)=>{
 
 const authorization = async(req,res,next)=>{
     try {
+        
         if(req.role !== "admin"){
-            return res.status(400).json({msg: "Access Denied"})
+            return res.status(403).json({msg: "Access Denied, Admin only"})
         }
         
         next();

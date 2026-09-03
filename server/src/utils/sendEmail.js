@@ -8,15 +8,17 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-const sendConfermationEmail = async(to, name)=>{
+const sendConfermationEmail = async(to, name,verificationLink)=>{
     await transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: to,
-        subject: "Registration Confirmation",
+        subject: "Verify Your Email",
         html:`
-         <h2>Welcome ${name} In College_Info</h2>
-         <p>Your account has been successfully created.</p>
-         <p>Thank you for registering.</p>
+         <h2>Welcome ${name} In College_Info_Web</h2>
+         
+         <h4>Email Verification</h4>
+         <p>Please click the link below to verify your email.</p>
+         <a href="${verificationLink}"> Verify Email </a>
         `
     });
 };

@@ -35,6 +35,11 @@ const userSchema = new mongoose.Schema({
         enum:["user","admin"],
         default: "user"
     },
+    isEmailVerified:{
+        type:Boolean,
+        required:true,
+        default:false
+    },
 },{timestamps:true});
 
 module.exports = mongoose.model("user",userSchema);
