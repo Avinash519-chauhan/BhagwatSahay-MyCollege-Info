@@ -226,7 +226,7 @@ const updateTeacherProfile = async (req, res) => {
             });
             await fs.promises.unlink(req.file.path);
 
-            const oldPublicId = teacher.teacherImage.split("/upload/")[1].replace(/^v\d+\//, "").replace(/\.[^/.]+$/, "");
+            const oldPublicId = teachers.teacherImage.split("/upload/")[1].replace(/^v\d+\//, "").replace(/\.[^/.]+$/, "");
 
             await cloudinary.uploader.destroy(oldPublicId);
 
