@@ -2,6 +2,7 @@ const NoticeBoardModel = require("../models/noticeBoardModel");
 const cloudinary = require("../config/cloudinary");
 const fs = require("fs");
 const { isValid, isValidObjectId } = require("../utils/validators");
+const {sendNewNoticeNotification} = require("../utils/noticeNotificationService")
 
 const createNotice = async (req, res) => {
     try {
@@ -73,6 +74,10 @@ const createNotice = async (req, res) => {
         noticeData.postImage = uploadResult.secure_url;
 
         let noticeAdded = await NoticeBoardModel.create(noticeData);
+
+        sendNewNoticeNotification(noticeAdded).catch(error=>{
+            console.log("Notice notification failed", error);
+        })
 
         return res.status(201).json({ msg: "Notice Added SuccessFully", noticeAdded });
     } catch (error) {

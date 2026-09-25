@@ -7,6 +7,7 @@ const path = require("path")
 const userRoute = require("./routes/userRoute");
 const teacherRouter = require("./routes/teacherRoute");
 const noticeBoardRoute = require("./routes/noticeBoardRoute");
+const aiRoute = require("./routes/aiRoute");
 
 const app = express();
 ConnectDB();
@@ -17,6 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/users",userRoute);
 app.use("/teachers",teacherRouter);
 app.use("/notice",noticeBoardRoute);
+app.use("/ai",aiRoute);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 

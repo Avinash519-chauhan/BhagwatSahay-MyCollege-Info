@@ -40,6 +40,10 @@ const userSchema = new mongoose.Schema({
         required:true,
         default:false
     },
+    noticeNotifications:{
+        type:Boolean,
+        default:true
+    }
 },{timestamps:true});
 
 module.exports = mongoose.model("user",userSchema);
