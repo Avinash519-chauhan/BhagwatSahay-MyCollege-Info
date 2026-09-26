@@ -1,8 +1,7 @@
 const mongoose = require("mongoose");
-const { applyTimestamps } = require("./noticeBoardModel");
 
-const aiUsageSchema = new mongoose.schema({
-    userid: {
+const aiUsageSchema = new mongoose.Schema({
+    userId: {
         type:mongoose.Schema.Types.ObjectId,
         ref: "user",
         required: true,
