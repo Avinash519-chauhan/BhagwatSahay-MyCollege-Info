@@ -2,13 +2,12 @@ const jwt = require("jsonwebtoken");
 
 const authentication = async(req,res,next)=>{
     try {
-        let token = req.headers.authorization;
+        let token = req.cookies.token;
         
         if(!token){
             return res.status(400).json({msg: "Login Token is Required"})
         }
 
-        token = token.split(" ")[1];
         let decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
         req.userId = decodedToken.userId;

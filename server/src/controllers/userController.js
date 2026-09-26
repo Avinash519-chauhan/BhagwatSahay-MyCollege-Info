@@ -155,11 +155,11 @@ const loginUser = async (req, res) => {
             return res.status(404).json({ msg: "User Not Found" });
         }
 
-        // if (!user.isEmailVerified) {
-        //     return res.status(403).json({
-        //         msg: "Please verify your email before logging in"
-        //     });
-        // }
+        if (!user.isEmailVerified) {
+            return res.status(403).json({
+                msg: "Please verify your email before logging in"
+            });
+        }
 
         let passwordMatch = await bcrypt.compare(password, user.password);
 
@@ -178,7 +178,14 @@ const loginUser = async (req, res) => {
             },
         );
 
-        return res.status(200).json({ msg: "Login Successfully", token });
+        res.cookie("token",token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 7*24*60*60*1000
+        });
+
+        return res.status(200).json({ msg: "Login Successfully"});
     } catch (error) {
         console.log(error);
         return res.status(500).json({ msg: "Internal server error" });
