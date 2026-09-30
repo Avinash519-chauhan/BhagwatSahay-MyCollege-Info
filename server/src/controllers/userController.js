@@ -122,7 +122,7 @@ const verifyEmail = async (req, res) => {
             return res.status(404).json({ msg: "User Not Found" });
         }
 
-        return res.status(200).json({ msg: "Email Verified Successfully" });
+        return res.redirect(`${process.env.FRONTEND_URL}/login?verified=true`);
     } catch (error) {
         console.log(error);
         return res.status(400).json({ msg: "Invalid or Expired Verification Link" })
@@ -191,6 +191,22 @@ const loginUser = async (req, res) => {
         return res.status(500).json({ msg: "Internal server error" });
     }
 };
+
+//logout user
+const logout = async(req,res) => {
+    try {
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production"? "none": "lax",
+        });
+
+        return res.status(200).json({msg: "Logout Successful"})
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({msg: "Internal Server error"})
+    }
+}
 
 //get profile
 const getUser = async (req, res) => {
@@ -350,4 +366,4 @@ const adminDeleteUser = async (req, res) => {
 }
 
 
-module.exports = { signupUser, verifyEmail, loginUser, getUser, updateProfile, deleteUser, getAllUser, adminDeleteUser };
+module.exports = { signupUser, verifyEmail, loginUser, logout, getUser, updateProfile, deleteUser, getAllUser, adminDeleteUser };
