@@ -66,7 +66,7 @@ const Login = () => {
             toast.success(response.data.msg || "Login Successful");
 
             if (role === "admin") {
-                navigate("")
+                navigate("/admin/dashboard")
             } else {
                 navigate("/home")
             }

@@ -185,7 +185,7 @@ const loginUser = async (req, res) => {
             maxAge: 7*24*60*60*1000
         });
 
-        return res.status(200).json({ msg: "Login Successfully"});
+        return res.status(200).json({ msg: "Login Successfully",user: {id: user._id,role: user.role}});
     } catch (error) {
         console.log(error);
         return res.status(500).json({ msg: "Internal server error" });
@@ -201,7 +201,7 @@ const logout = async(req,res) => {
             sameSite: process.env.NODE_ENV === "production"? "none": "lax",
         });
 
-        return res.status(200).json({msg: "Logout Successful"})
+        return res.status(200).json({msg: "Logout Successful"});
     } catch (error) {
         console.log(error);
         return res.status(500).json({msg: "Internal Server error"})

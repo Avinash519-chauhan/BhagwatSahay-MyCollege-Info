@@ -10,15 +10,10 @@ const Navbar = () => {
     const logoutHandler = async () => {
         try {
             const response = await api.post("/users/logout");
-            console.log("response", response);
             toast.success(response.data.msg || "Logout Successful");
             navigate("/login");
         } catch (error) {
-            console.log(error);
-            console.log("Status:", error.response?.status);
-            console.log("Data:", error.response?.data);
-            console.log("Message:", error.message);
-            // console.log(error.response?.data?.msg);
+            console.log(error.response?.data?.msg);
             toast.error(error.response?.data?.msg || "Logout Failed");
         }
     }

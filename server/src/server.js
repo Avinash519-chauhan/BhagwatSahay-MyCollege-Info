@@ -10,6 +10,7 @@ const userRoute = require("./routes/userRoute");
 const teacherRouter = require("./routes/teacherRoute");
 const noticeBoardRoute = require("./routes/noticeBoardRoute");
 const aiRoute = require("./routes/aiRoute");
+const adminDashboard = require("./routes/adminDashboardRoute")
 
 const app = express();
 ConnectDB();
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
+app.use("/admin",adminDashboard);
 app.use("/users",userRoute);
 app.use("/teachers",teacherRouter);
 app.use("/notice",noticeBoardRoute);

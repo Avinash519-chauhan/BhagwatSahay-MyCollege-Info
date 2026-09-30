@@ -6,6 +6,10 @@ import Teachers from "./pages/user/Teachers"
 import NoticeBoard from "./pages/user/NoticeBoard"
 import Documents from "./pages/user/Documents"
 import Profile from "./pages/user/Profile"
+import Dashboard from "./pages/admin/Dashboard"
+import TeacherData from "./pages/admin/TeacherData"
+import NoticeBoardData from "./pages/admin/NoticeBoardData"
+import UserData from "./pages/admin/UserData"
 
 const App = ()=>{
     return(
@@ -20,6 +24,11 @@ const App = ()=>{
             <Route path="/notice" element={<NoticeBoard />} />
             <Route path="/documents" element={<Documents />} />
             <Route path="/profile" element={<Profile />} />
+
+            <Route path="/admin/dashboard" element={<Dashboard />} />
+            <Route path="/admin/teacher" element={<TeacherData />} />
+            <Route path="/admin/noticeboard" element={<NoticeBoardData />} />
+            <Route path="/admin/user" element={<UserData />} />
         </Routes>
         </>
     )
