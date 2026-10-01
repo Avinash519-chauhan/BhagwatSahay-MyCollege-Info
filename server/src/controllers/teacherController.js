@@ -10,7 +10,7 @@ const createTeacherProfile = async (req, res) => {
             return res.status(400).json({ msg: "Bad Request, No Data Provided" })
         }
 
-        const { teacherName, degree, majorSubject, minorSubject, description, locatedRoomNo } = teacherData
+        const { teacherName, degree, majorSubject, minorSubject, description, locatedRoomNo, locatedBlock } = teacherData
 
         //teacher name
         if (!isValid(teacherName)) {
@@ -82,6 +82,11 @@ const createTeacherProfile = async (req, res) => {
             return res.status(400).json({ msg: "Room No. is Required" })
         }
 
+        //locatedBlock
+        if (!isValid(locatedBlock)) {
+            return res.status(400).json({ msg: "Block is Required" })
+        }
+
         //teacherImage
         if (!req.file) {
             return res.status(400).json({ msg: "Teacher Image is Required" });
@@ -123,6 +128,37 @@ const getTeacherProfile = async (req, res) => {
     }
 }
 
+const degreeSubject = {
+    "M.A.": [
+        "History",
+        "Political Science",
+        "English"
+    ],
+    "M.Com.": [
+        "Accounting",
+        "Finance",
+        "Economics"
+    ],
+    "B.A.": [
+        "History",
+        "Political Science",
+        "English"
+    ],
+    "B.Com.": [
+        "Accounting",
+        "Economics"
+    ],
+    "B.Sc.": [
+        "Mathematics",
+        "Physics",
+        "Chemistry",
+        "Computer Science"
+    ],
+    "Faculty": [],
+    "Sports": [],
+    "Management": []
+};
+
 const updateTeacherProfile = async (req, res) => {
     try {
         let teacherId = req.params.id;
@@ -132,7 +168,15 @@ const updateTeacherProfile = async (req, res) => {
             return res.status(400).json({ msg: "Bad Request! No Data Found" })
         }
 
-        let { teacherName, degree, majorSubject, minorSubject, description, locatedRoomNo } = teacherData;
+        const teacher = await TeacherModel.findById(teacherId);
+
+        if (!teacher) {
+            return res.status(404).json({
+                msg: "Teacher Not Found"
+            });
+        }
+
+        let { teacherName, degree, majorSubject, minorSubject, description, locatedRoomNo, locatedBlock } = teacherData;
 
         if (teacherName !== undefined) {
             if (!isValid(teacherName)) {
@@ -142,37 +186,6 @@ const updateTeacherProfile = async (req, res) => {
                 return res.status(400).json({ msg: "Invalid Teacher Name" });
             }
         }
-
-        const degreeSubject = {
-            "M.A.": [
-                "History",
-                "Political Science",
-                "English"
-            ],
-            "M.Com.": [
-                "Accounting",
-                "Finance",
-                "Economics"
-            ],
-            "B.A.": [
-                "History",
-                "Political Science",
-                "English"
-            ],
-            "B.Com.": [
-                "Accounting",
-                "Economics"
-            ],
-            "B.Sc.": [
-                "Mathematics",
-                "Physics",
-                "Chemistry",
-                "Computer Science"
-            ],
-            "Faculty": [],
-            "Sports": [],
-            "Management": []
-        };
 
         if (teacherName !== undefined) {
             if (!isValid(teacherName)) {
@@ -217,16 +230,44 @@ const updateTeacherProfile = async (req, res) => {
             }
         }
 
+        if (locatedBlock !== undefined) {
+
+            if (!isValid(locatedBlock)) {
+                return res.status(400).json({
+                    msg: "Block is Required"
+                });
+            }
+
+            const validBlocks = ["A Block", "B Block", "C Block"];
+
+            if (!validBlocks.includes(locatedBlock)) {
+                return res.status(400).json({
+                    msg: "Invalid Block"
+                });
+            }
+        }
+
         if (req.file !== undefined) {
             if (!req.file) {
                 return res.status(400).json({ msg: "Teacher Image is Required" });
             }
-            const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-                folder: "teachers"
-            });
+
+            const uploadResult = await cloudinary.uploader.upload(
+                req.file.path,
+                {
+                    folder: "teachers"
+                }
+            );
+
             await fs.promises.unlink(req.file.path);
 
-            const oldPublicId = teachers.teacherImage.split("/upload/")[1].replace(/^v\d+\//, "").replace(/\.[^/.]+$/, "");
+            const oldPublicId = teacher.teacherImage
+                .split("/upload/")[1]
+                .replace(/^v\d+\//, "")
+                .replace(/\.[^/.]+$/, "");
+
+            console.log("old image", teacher.teacherImage);
+            console.log("old public ID", oldPublicId);
 
             await cloudinary.uploader.destroy(oldPublicId);
 
@@ -236,30 +277,30 @@ const updateTeacherProfile = async (req, res) => {
         let updateTeacher = await TeacherModel.findByIdAndUpdate(
             teacherId,
             teacherData,
-            {returnDocument: "after"}
+            { returnDocument: "after" }
         )
 
-        return res.status(201).json({msg: "Teacher Updated SuccessFully", updateTeacher})
+        return res.status(201).json({ msg: "Teacher Updated SuccessFully", updateTeacher })
     } catch (error) {
         console.log(error);
         return res.status(500).json({ msg: "Internal Server Error" })
     }
 }
 
-const deleteTeacher = async(req,res)=>{
+const deleteTeacher = async (req, res) => {
     try {
         let teacherId = req.params.id;
 
         let deletedTeacher = await TeacherModel.findByIdAndDelete(teacherId);
 
-        if(!deletedTeacher){
-            return res.status(400).json({msg: "Teacher not Found or Already Deleted"})
+        if (!deletedTeacher) {
+            return res.status(400).json({ msg: "Teacher not Found or Already Deleted" })
         }
 
-        return res.status(200).json({msg: "Teacher Profile Deleted"})
+        return res.status(200).json({ msg: "Teacher Profile Deleted" })
     } catch (error) {
         console.log(error);
-        return res.status(500).json({msg: "Internal Server Error"})
+        return res.status(500).json({ msg: "Internal Server Error" })
     }
 }
 

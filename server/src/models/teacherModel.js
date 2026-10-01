@@ -33,7 +33,12 @@ const teacherSchema = new mongoose.Schema(
             type: Number,
             required: true
         },
+        locatedBlock: {
+            type: String,
+            required: true,
+            enum: ["A Block","B Block","C Block"]
+        },
     }, { timestamps: true }
 );
 
-module.exports = mongoose.model("teacher",teacherSchema);
+module.exports = mongoose.model("teacher", teacherSchema);

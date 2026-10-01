@@ -1,8 +1,40 @@
-import { FaUser, FaImage, FaGraduationCap, FaBook, FaArrowLeft, FaBookOpen, FaMapMarkerAlt, FaAlignLeft, FaPlus, FaEdit, FaTrashAlt } from "react-icons/fa";
-import { useState, useEffect, useRef, useReducer } from "react";
+import { FaUser, FaImage, FaGraduationCap, FaBook, FaBuilding, FaArrowLeft, FaBookOpen, FaMapMarkerAlt, FaAlignLeft, FaPlus, FaEdit, FaTrashAlt } from "react-icons/fa";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
+
+
+const degreeSubject = {
+    "M.A.": [
+        "History",
+        "Political Science",
+        "English"
+    ],
+    "M.Com.": [
+        "Accounting",
+        "Finance",
+        "Economics"
+    ],
+    "B.A.": [
+        "History",
+        "Political Science",
+        "English"
+    ],
+    "B.Com.": [
+        "Accounting",
+        "Economics"
+    ],
+    "B.Sc.": [
+        "Mathematics",
+        "Physics",
+        "Chemistry",
+        "Computer Science"
+    ],
+    "Faculty": [],
+    "Sports": [],
+    "Management": []
+};
 
 const TeacherData = () => {
 
@@ -22,6 +54,7 @@ const TeacherData = () => {
         minorSubject: "",
         description: "",
         locatedRoomNo: "",
+        locatedBlock: "",
     })
 
     const changeHandler = (e) => {
@@ -47,6 +80,7 @@ const TeacherData = () => {
             data.append("minorSubject", formData.minorSubject);
             data.append("description", formData.description);
             data.append("locatedRoomNo", formData.locatedRoomNo);
+            data.append("locatedBlock", formData.locatedBlock);
 
             if (formData.teacherImage instanceof File) {
                 data.append("teacherImage", formData.teacherImage);
@@ -60,7 +94,7 @@ const TeacherData = () => {
                 response = await api.post("/teachers/create-teacher", data);
             }
 
-            toast.success(response.data.msg || editingTeacher ? "Teacher Updated Successfully" : "Teacher created Successful");
+            toast.success(response.data.msg);
 
             setFormData({
                 teacherName: "",
@@ -70,6 +104,7 @@ const TeacherData = () => {
                 minorSubject: "",
                 description: "",
                 locatedRoomNo: "",
+                locatedBlock: "",
             });
 
             setEditingTeacher(null);
@@ -138,6 +173,7 @@ const TeacherData = () => {
             minorSubject: teacher.minorSubject || "",
             description: teacher.description || "",
             locatedRoomNo: teacher.locatedRoomNo || "",
+            locatedBlock: teacher.locatedBlock || "",
         });
 
         window.scrollTo({
@@ -145,6 +181,8 @@ const TeacherData = () => {
             behavior: "smooth",
         })
     }
+
+    const subjects = degreeSubject[formData.degree] || [];
 
     useEffect(() => {
         fetchTeachers();
@@ -250,14 +288,20 @@ const TeacherData = () => {
                                         size={14}
                                         className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2D42]/40"
                                     />
-                                    <input
-                                        type="text"
+                                    <select
                                         name="degree"
                                         value={formData.degree}
                                         onChange={changeHandler}
-                                        placeholder="M.Sc., Ph.D."
-                                        className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-[#2B2D42]/15 text-sm outline-none focus:border-[#3B5BA5]"
-                                    />
+                                        className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-[#2B2D42]/15 text-sm outline-none focus:border-[#3B5BA5] bg-white"
+                                    >
+                                        <option value="">Select Degree</option>
+
+                                        {Object.keys(degreeSubject).map((degree) => (
+                                            <option key={degree} value={degree}>
+                                                {degree}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
 
@@ -270,14 +314,27 @@ const TeacherData = () => {
                                         size={14}
                                         className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2D42]/40"
                                     />
-                                    <input
-                                        type="text"
+                                    <select
                                         name="majorSubject"
                                         value={formData.majorSubject}
                                         onChange={changeHandler}
-                                        placeholder="Physics"
-                                        className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-[#2B2D42]/15 text-sm outline-none focus:border-[#3B5BA5]"
-                                    />
+                                        disabled={!formData.degree || subjects.length === 0}
+                                        className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-[#2B2D42]/15 text-sm outline-none focus:border-[#3B5BA5] bg-white disabled:bg-gray-100"
+                                    >
+                                        <option value="">
+                                            {!formData.degree
+                                                ? "Select Degree First"
+                                                : subjects.length === 0
+                                                    ? "No Subjects Available"
+                                                    : "Select Major Subject"}
+                                        </option>
+
+                                        {subjects.map((subject) => (
+                                            <option key={subject} value={subject}>
+                                                {subject}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
 
@@ -290,14 +347,27 @@ const TeacherData = () => {
                                         size={14}
                                         className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2D42]/40"
                                     />
-                                    <input
-                                        type="text"
+                                    <select
                                         name="minorSubject"
                                         value={formData.minorSubject}
                                         onChange={changeHandler}
-                                        placeholder="Mathematics"
-                                        className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-[#2B2D42]/15 text-sm outline-none focus:border-[#3B5BA5]"
-                                    />
+                                        disabled={!formData.degree || subjects.length === 0}
+                                        className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-[#2B2D42]/15 text-sm outline-none focus:border-[#3B5BA5] bg-white disabled:bg-gray-100"
+                                    >
+                                        <option value="">
+                                            {!formData.degree
+                                                ? "Select Degree First"
+                                                : subjects.length === 0
+                                                    ? "No Subjects Available"
+                                                    : "Select Minor Subject"}
+                                        </option>
+
+                                        {subjects.map((subject) => (
+                                            <option key={subject} value={subject}>
+                                                {subject}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -322,24 +392,62 @@ const TeacherData = () => {
                             </div>
                         </div>
 
-                        <div className="sm:w-1/2">
-                            <label className="block text-sm font-medium mb-1.5 text-[#2B2D42]">
-                                Located Room
-                            </label>
-                            <div className="relative">
-                                <FaMapMarkerAlt
-                                    size={14}
-                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2D42]/40"
-                                />
-                                <input
-                                    type="text"
-                                    name="locatedRoomNo"
-                                    value={formData.locatedRoomNo}
-                                    onChange={changeHandler}
-                                    placeholder="Room 101, Block A"
-                                    className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-[#2B2D42]/15 text-sm outline-none focus:border-[#3B5BA5]"
-                                />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+                            {/* Located Room */}
+                            <div className="w-full min-w-0">
+                                <label className="block text-sm font-medium mb-1.5 text-[#2B2D42]">
+                                    Located Room
+                                </label>
+
+                                <div className="relative w-full">
+                                    <FaMapMarkerAlt
+                                        size={14}
+                                        className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2D42]/40 pointer-events-none"
+                                    />
+
+                                    <input
+                                        type="text"
+                                        name="locatedRoomNo"
+                                        value={formData.locatedRoomNo}
+                                        onChange={changeHandler}
+                                        placeholder="Room 101"
+                                        className="w-full min-w-0 pl-9 pr-3 py-2.5 rounded-lg border border-[#2B2D42]/15 text-sm outline-none focus:border-[#3B5BA5]"
+                                    />
+                                </div>
                             </div>
+
+                            {/* Block */}
+                            <div className="w-full min-w-0">
+                                <label className="block text-sm font-medium mb-1.5 text-[#2B2D42]">
+                                    Block
+                                </label>
+
+                                <div className="relative w-full">
+                                    <FaBuilding
+                                        size={14}
+                                        className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2B2D42]/40 pointer-events-none"
+                                    />
+
+                                    <select
+                                        name="locatedBlock"
+                                        value={formData.locatedBlock}
+                                        onChange={changeHandler}
+                                        className="w-full min-w-0 pl-9 pr-3 py-2.5 rounded-lg border border-[#2B2D42]/15 text-sm outline-none focus:border-[#3B5BA5] bg-white appearance-none"
+                                    >
+                                        <option value="">Select Block</option>
+                                        <option value="A Block">A Block</option>
+                                        <option value="B Block">B Block</option>
+                                        <option value="C Block">C Block</option>
+                                    </select>
+
+                                    {/* Custom dropdown arrow */}
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2D42]/40 pointer-events-none">
+                                        ▾
+                                    </span>
+                                </div>
+                            </div>
+
                         </div>
 
                         <button
