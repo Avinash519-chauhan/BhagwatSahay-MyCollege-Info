@@ -2,7 +2,8 @@ import { FaChalkboardTeacher, FaSignOutAlt, FaBullhorn, FaUsers, FaArrowRight } 
 import { Link, useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import api from "../../services/api"
+import api from "../../services/api";
+import AdminNavbar from "../../components/adminNavbar";
 
 const Dashboard = () => {
 
@@ -67,6 +68,8 @@ const Dashboard = () => {
 
     return (
         <div className="min-h-screen bg-[#FAF8F4]">
+            <AdminNavbar />
+    
             <div className="max-w-7xl mx-auto px-6 sm:px-8 py-10 md:py-14">
                 {/* header */}
                 <div className="mb-8 md:mb-12">

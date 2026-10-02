@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
+import AdminNavbar from "../../components/adminNavbar";
 
 
 const degreeSubject = {
@@ -201,6 +202,7 @@ const TeacherData = () => {
 
     return (
         <div className="min-h-screen bg-[#FAF8F4]">
+            <AdminNavbar />
             <div className="max-w-7xl mx-auto px-6 sm:px-8 py-10 md:py-14">
                 <div className="mb-6">
                     <button
@@ -452,10 +454,18 @@ const TeacherData = () => {
 
                         <button
                             type="submit"
+                            disabled={loading}
                             className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#14213D] text-[#FAF8F4] text-sm font-semibold hover:bg-[#1D2E52] transition-colors"
                         >
                             <FaPlus size={13} />
-                            {editingTeacher ? "Update Teacher" : "Add Teacher"}
+                            {loading
+                                ? editingTeacher
+                                    ? "Updating..."
+                                    : "Adding..."
+                                : editingTeacher
+                                    ? "Update Teacher"
+                                    : "Add Teacher"
+                            }
                         </button>
                     </form>
                 </div>

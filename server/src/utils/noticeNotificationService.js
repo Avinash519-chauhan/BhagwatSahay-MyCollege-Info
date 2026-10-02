@@ -1,5 +1,5 @@
-const transporter = require("nodemailer");
 const UserModel = require("../models/userModel");
+const transporter = require("./emailTransporter");
 
 const sendNewNoticeNotification = async (notice) => {
     try {

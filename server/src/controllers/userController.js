@@ -5,6 +5,13 @@ const sendConfermationEmail = require("../utils/sendEmail");
 
 const { isValid, isValidFullName, isValidEmail, isValidPassword, isValidObjectId } = require("../utils/validators")
 
+const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000
+};
+
 //Sign up
 const signupUser = async (req, res) => {
     try {
@@ -80,7 +87,9 @@ const signupUser = async (req, res) => {
         userData.password = hashedPassword;
 
         //create user
-        let userAdded = await UserModel.create(userData);
+        let userAdded = await UserModel.create({
+            fullName, email, password: hashedPassword, degreeName, year
+        });
 
         //verification token
         const verificationToken = jwt.sign(
@@ -174,18 +183,13 @@ const loginUser = async (req, res) => {
             },
             process.env.JWT_SECRET_KEY,
             {
-                expiresIn: "1d",
+                expiresIn: "7d",
             },
         );
 
-        res.cookie("token",token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            maxAge: 7*24*60*60*1000
-        });
+        res.cookie("token", token, cookieOptions);
 
-        return res.status(200).json({ msg: "Login Successfully",user: {id: user._id,role: user.role}});
+        return res.status(200).json({ msg: "Login Successfully", user: { id: user._id, role: user.role } });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ msg: "Internal server error" });
@@ -193,18 +197,14 @@ const loginUser = async (req, res) => {
 };
 
 //logout user
-const logout = async(req,res) => {
+const logout = async (req, res) => {
     try {
-        res.clearCookie("token", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production"? "none": "lax",
-        });
+        res.clearCookie("token", cookieOptions);
 
-        return res.status(200).json({msg: "Logout Successful"});
+        return res.status(200).json({ msg: "Logout Successful" });
     } catch (error) {
         console.log(error);
-        return res.status(500).json({msg: "Internal Server error"})
+        return res.status(500).json({ msg: "Internal Server error" })
     }
 }
 
@@ -268,9 +268,8 @@ const updateProfile = async (req, res) => {
             if (!isValidPassword(password)) {
                 return res.status(400).json({ msg: "Invalid Password" })
             }
-            let hashedPassword = await bcrypt.hash(password, 10);
-            userData.password = hashedPassword;
         }
+
         if (degreeName !== undefined) {
             if (!isValid(degreeName)) {
                 return res.status(400).json({ msg: "Degree is required" })
@@ -290,10 +289,15 @@ const updateProfile = async (req, res) => {
             }
         }
 
+        const updateData = {};
+        if (fullName !== undefined) updateData.fullName = fullName;
+        if (email !== undefined) updateData.email = email;
+        if (password !== undefined) updateData.password = await bcrypt.hash(password, 10);
+        if (degreeName !== undefined) updateData.degreeName = degreeName;
+        if (year !== undefined) updateData.year = year;
+
         let updatedUserProfile = await UserModel.findByIdAndUpdate(
-            userId,
-            userData,
-            { returnDocument: "after" },
+            userId, updateData, { returnDocument: "after" }
         ).select("-password");
 
         return res.status(200).json({ msg: "User Updated Successfully", updatedUserProfile })

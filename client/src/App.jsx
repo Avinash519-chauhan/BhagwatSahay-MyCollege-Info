@@ -10,10 +10,11 @@ import Dashboard from "./pages/admin/Dashboard"
 import TeacherData from "./pages/admin/TeacherData"
 import NoticeBoardData from "./pages/admin/NoticeBoardData"
 import UserData from "./pages/admin/UserData"
+import {AuthProvider} from "./context/AuthContext";
 
 const App = ()=>{
     return(
-        <>
+        <AuthProvider>
         <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/login" element={<Login />} />
@@ -30,7 +31,7 @@ const App = ()=>{
             <Route path="/admin/noticeboard" element={<NoticeBoardData />} />
             <Route path="/admin/user" element={<UserData />} />
         </Routes>
-        </>
+        </AuthProvider>
     )
 }
 

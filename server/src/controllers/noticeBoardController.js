@@ -2,7 +2,7 @@ const NoticeBoardModel = require("../models/noticeBoardModel");
 const cloudinary = require("../config/cloudinary");
 const fs = require("fs");
 const { isValid, isValidObjectId } = require("../utils/validators");
-const {sendNewNoticeNotification} = require("../utils/noticeNotificationService")
+const { sendNewNoticeNotification } = require("../utils/noticeNotificationService")
 
 const createNotice = async (req, res) => {
     try {
@@ -21,7 +21,13 @@ const createNotice = async (req, res) => {
         let { description, lastDate } = noticeData;
 
         if (!isValid(description)) {
-            return res.status(400).json({ msg: "Description is Required" })
+            if (req.file) {
+                await fs.promises.unlink(req.file.path);
+            }
+
+            return res.status(400).json({
+                msg: "Description is Required"
+            });
         }
 
         if (description !== undefined && description.trim() !== "") {
@@ -75,7 +81,7 @@ const createNotice = async (req, res) => {
 
         let noticeAdded = await NoticeBoardModel.create(noticeData);
 
-        sendNewNoticeNotification(noticeAdded).catch(error=>{
+        sendNewNoticeNotification(noticeAdded).catch(error => {
             console.log("Notice notification failed", error);
         })
 
@@ -88,10 +94,10 @@ const createNotice = async (req, res) => {
 
 const getNotice = async (req, res) => {
     try {
-        let notices = await NoticeBoardModel.find();
+        let notices = await NoticeBoardModel.find().populate("userId", "fullName").sort({ createdAt: -1 });
 
         if (notices.length === 0) {
-            return res.status(400).json({ msg: "No Notice Found" })
+            return res.status(400).json({ msg: "No Notice Found", notices: [] })
         }
 
         return res.status(200).json({ msg: "Notice's found Successfully", notices })
@@ -118,6 +124,27 @@ const updateNotice = async (req, res) => {
 
         if (!notice) {
             return res.status(404).json({ msg: "Notice Not Found" })
+        }
+
+        const isOwner = notice.userId.toString() === req.userId.toString();
+
+        const isAdmin = req.role === "admin";
+
+        if (!isOwner) {
+            return res.status(403).json({ msg: "You can only edit your own notice" });
+        }
+
+
+        if (!isAdmin) {
+            const currentTime = Date.now();
+            const createdTime = new Date(notice.createdAt).getTime();
+            const fifteenMinutes = 15 * 60 * 1000;
+
+            if (currentTime - createdTime > fifteenMinutes) {
+                return res.status(403).json({
+                    msg: "Notice can only be edited within 15 minutes of posting"
+                });
+            }
         }
 
         let { description, lastDate } = noticeData;
@@ -150,35 +177,33 @@ const updateNotice = async (req, res) => {
             }
         }
 
-        if (req.file !== undefined) {
-            if (req.file) {
-                return res.status(400).json({ msg: "Notice Image is Required" });
-            }
-            const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-                folder: "notice"
-            });
+        if (req.file) {
+            const uploadResult = await cloudinary.uploader.upload(
+                req.file.path,
+                {
+                    folder: "notice"
+                }
+            );
+
             await fs.promises.unlink(req.file.path);
 
-            const oldPublicId = notice.postImage.split("/upload/")[1].replace(/^v\d+\//, "").replace(/\.[^/.]+$/, "");
+            const getPublicId = (url) =>
+                url?.split("/upload/")[1]?.replace(/^v\d+\//, "").replace(/\.[^/.]+$/, "");
 
-            await cloudinary.uploader.destroy(oldPublicId);
+            const oldPublicId = getPublicId(notice.postImage);
+            if (oldPublicId) await cloudinary.uploader.destroy(oldPublicId);
 
             noticeData.postImage = uploadResult.secure_url;
         }
 
-        const isOwner = notice.userId.toString() === req.userId.toString();
-
-        if (!isOwner) {
-            return res.status(403).json({
-                msg: "You are not authorized to update this notice"
-            });
-        }
+        const updateData = {};
+        if (description !== undefined) updateData.description = description.trim();
+        if (lastDate !== undefined) updateData.lastDate = lastDate;
+        if (noticeData.postImage !== undefined) updateData.postImage = noticeData.postImage;
 
         let updatedNotice = await NoticeBoardModel.findByIdAndUpdate(
-            noticeId,
-            noticeData,
-            { returnDocument: "after" }
-        )
+            noticeId, updateData, { returnDocument: "after" }
+        );
 
         return res.status(200).json({ msg: "Notice Updated Successfully", updatedNotice })
     } catch (error) {
@@ -195,6 +220,7 @@ const deleteNotice = async (req, res) => {
             return res.status(400).json({ msg: "Invalid Notice Id" })
         }
 
+        // Find the notice first
         let deletedNotice = await NoticeBoardModel.findById(noticeId);
 
         if (!deletedNotice) {
@@ -206,19 +232,40 @@ const deleteNotice = async (req, res) => {
         const isAdmin = req.role === "admin";
 
         if (!isOwner && !isAdmin) {
-            return res.status(403).json({ msg: "You are not authorized to delete this notice" })
+            return res.status(403).json({
+                msg: "You are not authorized to delete this notice"
+            });
         }
 
-        const publicId = deletedNotice.postImage.split("/upload/")[1].replace(/^v\d+\//, "").replace(/\.[^/.]+$/, "");
+        if (!isAdmin) {
+            const currentTime = Date.now();
+            const createdTime = new Date(deletedNotice.createdAt).getTime();
+            const oneHour = 60 * 60 * 1000;
 
-        await cloudinary.uploader.destroy(publicId);
+            if (currentTime - createdTime > oneHour) {
+                return res.status(403).json({
+                    msg: "Notice can only be deleted within 1 hour of posting"
+                });
+            }
+        }
+
+        const getPublicId = (url) =>
+            url?.split("/upload/")[1]?.replace(/^v\d+\//, "").replace(/\.[^/.]+$/, "");
+
+        const oldPublicId = getPublicId(deletedNotice.postImage);
+        if (oldPublicId) await cloudinary.uploader.destroy(oldPublicId);
 
         await NoticeBoardModel.findByIdAndDelete(noticeId);
 
-        return res.status(200).json({ msg: "Notice Deleted SuccessFully" })
+        return res.status(200).json({
+            msg: "Notice Deleted SuccessFully"
+        });
+
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ msg: "Internal Server Error" })
+        return res.status(500).json({
+            msg: "Internal Server Error"
+        })
     }
 }
 
