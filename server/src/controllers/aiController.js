@@ -81,12 +81,17 @@ const askAI = async (req, res) => {
 
         await usage.save();
 
-        return res.status(200).json({msg: "Ai Response Generated Successfully", answer})
+        return res.status(200).json({ msg: "Ai Response Generated Successfully", answer })
 
     } catch (error) {
         console.log(error);
+        if (error.status === 503) {
+            return res.status(503).json({
+                msg: "AI service is temporarily busy. Please try again in a moment."
+            });
+        }
         return res.status(500).json({ msg: "Internal Server Error On AI Side" })
     }
 }
 
-module.exports = {askAI};
+module.exports = { askAI };
