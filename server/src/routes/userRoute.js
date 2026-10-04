@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const {signupUser,verifyEmail,loginUser,logout,getUser,updateProfile,deleteUser,getAllUser,adminDeleteUser} = require("../controllers/userController")
+const {signupUser,verifyEmail,loginUser,logout,getUser,updateProfile,deleteUser,getAllUser,adminDeleteUser,banEmail} = require("../controllers/userController")
 
 const {authentication,authorization} = require("../middleware/auth")
 
@@ -16,5 +16,6 @@ router.delete("/delete",authentication,deleteUser);
 //admin
 router.get("/getalluser",authentication,authorization,getAllUser);
 router.delete("/delete/:id",authentication,authorization,adminDeleteUser);
+router.post("/ban-email",authentication,authorization,banEmail);
 
 module.exports = router;

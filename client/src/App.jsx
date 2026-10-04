@@ -11,6 +11,7 @@ import TeacherData from "./pages/admin/TeacherData"
 import NoticeBoardData from "./pages/admin/NoticeBoardData"
 import UserData from "./pages/admin/UserData"
 import {AuthProvider} from "./context/AuthContext";
+import AdminProfile from "./pages/admin/AdminProfile"
 
 const App = ()=>{
     return(
@@ -30,6 +31,7 @@ const App = ()=>{
             <Route path="/admin/teacher" element={<TeacherData />} />
             <Route path="/admin/noticeboard" element={<NoticeBoardData />} />
             <Route path="/admin/user" element={<UserData />} />
+            <Route path="/admin/profile" element={<AdminProfile />} />
         </Routes>
         </AuthProvider>
     )

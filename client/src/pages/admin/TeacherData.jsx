@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
-import AdminNavbar from "../../components/adminNavbar";
+import AdminNavbar from "../../components/AdminNavbar";
 
 
 const degreeSubject = {

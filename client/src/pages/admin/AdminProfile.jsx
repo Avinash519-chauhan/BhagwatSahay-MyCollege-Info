@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 import { FaUser, FaEnvelope, FaLock, FaGraduationCap, FaCalendarAlt, FaEdit, FaArrowLeft, FaBell, FaChevronDown } from "react-icons/fa";
 import { toast } from "react-toastify";
-import Navbar from "../../components/Navbar"
 import api from "../../services/api";
+import { useNavigate } from "react-router-dom";
+import AdminNavbar from "../../components/AdminNavbar";
 
 const Degree = ["B.A.", "B.Sc.", "B.Com.", "M.A.", "M.Com."];
 const Year = ["1st", "2nd", "3rd", "4th"];
 
-const Profile = () => {
+const AdminProfile = () => {
+
+    const navigate = useNavigate();
 
     const [view, setView] = useState("view");
     const [notificationsOn, setNotificationsOn] = useState(true);
@@ -107,11 +110,22 @@ const Profile = () => {
 
     return (
         <div className="min-h-screen bg-[#FAF8F4]">
-            <Navbar />
+            <AdminNavbar />
 
-            <div className="max-w-xl mx-auto px-6 sm:px-8 py-10 md:py-14">
+            <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 md:py-14">
+
                 {view === "view" ? (
                     <>
+                        {/* Back to Dashboard */}
+                        <button
+                            type="button"
+                            onClick={() => navigate("/admin/dashboard")}
+                            className="flex items-center gap-2 text-sm text-[#2B2D42]/60 hover:text-[#14213D] mb-6 transition-colors"
+                        >
+                            <FaArrowLeft size={13} />
+                            <span>Back to Dashboard</span>
+                        </button>
+
                         {/* header */}
                         <div className="flex items-center justify-between mb-8 gap-4">
                             <div>
@@ -421,4 +435,4 @@ const Profile = () => {
     )
 }
 
-export default Profile;
+export default AdminProfile;

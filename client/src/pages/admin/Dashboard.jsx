@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import api from "../../services/api";
-import AdminNavbar from "../../components/adminNavbar";
+import AdminNavbar from "../../components/AdminNavbar";
 
 const Dashboard = () => {
 

@@ -2,6 +2,7 @@ const UserModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const sendConfermationEmail = require("../utils/sendEmail");
+const BannedEmailModel = require("../models/bannedEmailModel");
 
 const { isValid, isValidFullName, isValidEmail, isValidPassword, isValidObjectId } = require("../utils/validators")
 
@@ -43,6 +44,14 @@ const signupUser = async (req, res) => {
 
         if (duplicateEmail) {
             return res.status(401).json({ msg: "Emial is already Exist" })
+        }
+
+        const bannedEmail = await BannedEmailModel.findOne({ email });
+
+        if (bannedEmail) {
+            return res.status(403).json({
+                msg: "This email address has been banned"
+            });
         }
 
         //userPassword
@@ -235,7 +244,7 @@ const updateProfile = async (req, res) => {
             return res.status(400).json({ msg: "Bad Request! No Data Provided" })
         }
 
-        let { fullName, email, password, degreeName, year } = userData;
+        let { fullName, email, password, degreeName, year, noticeNotifications } = userData;
 
         if (fullName !== undefined) {
             if (!isValid(fullName)) {
@@ -289,12 +298,19 @@ const updateProfile = async (req, res) => {
             }
         }
 
+        if (noticeNotifications !== undefined && typeof noticeNotifications !== "boolean") {
+            return res.status(400).json({ msg: "Invalid Notification Preference" });
+        }
+
         const updateData = {};
         if (fullName !== undefined) updateData.fullName = fullName;
         if (email !== undefined) updateData.email = email;
         if (password !== undefined) updateData.password = await bcrypt.hash(password, 10);
         if (degreeName !== undefined) updateData.degreeName = degreeName;
         if (year !== undefined) updateData.year = year;
+        if (noticeNotifications !== undefined) {
+            updateData.noticeNotifications = noticeNotifications;
+        }
 
         let updatedUserProfile = await UserModel.findByIdAndUpdate(
             userId, updateData, { returnDocument: "after" }
@@ -369,5 +385,48 @@ const adminDeleteUser = async (req, res) => {
     }
 }
 
+//admin banned email
 
-module.exports = { signupUser, verifyEmail, loginUser, logout, getUser, updateProfile, deleteUser, getAllUser, adminDeleteUser };
+const banEmail = async(req,res)=> {
+    try {
+        const {email} = req.body;
+
+        if(!isValid(email)){
+            return res.status(400).json({msg: "Email is Required"});
+        }
+
+        if(!isValidEmail(email)){
+            return res.status(400).json({msg: "Invalid Email"})
+        };
+
+        const normalizedEmail = email.trim().toLowerCase();
+
+        const alreadyBanned = await BannedEmailModel.findOne({
+            email: normalizedEmail
+        });
+
+        if (alreadyBanned) {
+            return res.status(400).json({
+                msg: "Email is already banned"
+            });
+        }
+
+        await BannedEmailModel.create({
+            email: normalizedEmail
+        });
+
+        return res.status(201).json({
+            msg: "Email banned successfully"
+        });
+
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            msg: "Internal Server Error"
+        });
+    }
+}
+
+
+module.exports = { signupUser, verifyEmail, loginUser, logout, getUser, updateProfile, deleteUser, getAllUser, adminDeleteUser, banEmail };

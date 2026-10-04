@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { FaPlus, FaArrowLeft, FaUserCircle, FaCalendarAlt, FaImage, FaAlignLeft, FaCloudUploadAlt, FaEdit, FaTrashAlt } from "react-icons/fa";
 import api from "../../services/api";
 import { toast } from "react-toastify";
-import AdminNavbar from "../../components/adminNavbar";
+import AdminNavbar from "../../components/AdminNavbar";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
