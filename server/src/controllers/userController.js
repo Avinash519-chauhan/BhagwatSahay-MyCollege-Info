@@ -29,7 +29,7 @@ const signupUser = async (req, res) => {
             return res.status(400).json({ msg: "Name is Required" })
         }
         if (!isValidFullName(fullName)) {
-            return res.status(400).json({ msg: "Invalid Name" })
+            return res.status(400).json({ msg: "Invalid Name! Don't use special character (.,#@)" })
         }
 
         //userEmail
@@ -37,7 +37,7 @@ const signupUser = async (req, res) => {
             return res.status(400).json({ msg: "Email is Required" })
         }
         if (!isValidEmail(email)) {
-            return res.status(400).json({ msg: "Invalid Email" })
+            return res.status(400).json({ msg: "Invalid Email! use @gmail.com" })
         }
 
         let duplicateEmail = await UserModel.findOne({ email });
@@ -59,7 +59,7 @@ const signupUser = async (req, res) => {
             return res.status(400).json({ msg: "Password is Required" })
         }
         if (!isValidPassword(password)) {
-            return res.status(400).json({ msg: "Invalid Password" })
+            return res.status(400).json({ msg: "Password must contain uppercase, lowercase, number, and special character, with 8 to 20 characters" })
         }
 
         //degreeName

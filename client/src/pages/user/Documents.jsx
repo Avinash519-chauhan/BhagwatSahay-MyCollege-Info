@@ -436,6 +436,9 @@ const Documents = () => {
                         </div>
                     </div>
                 </details>
+                <p className="mt-4 text-xs text-[#14213D]/70 bg-[#14213D]/5 rounded-lg px-3 py-2.5 leading-relaxed">
+                    <strong>Note:</strong> Please consult your teacher as well to confirm the required documents and procedure before proceeding.
+                </p>
             </div>
 
             {/* FIXED AI BUTTON — stays in place, doesn't move with page scroll */}
