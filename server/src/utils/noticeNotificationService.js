@@ -7,7 +7,15 @@ const sendNewNoticeNotification = async (notice) => {
         const users = await UserModel.find({
             isEmailVerified: true,
             noticeNotifications: true
-        }).select("email");
+        }).select("email noticeNotifications");
+
+        console.log(
+            "Notification users:",
+            users.map(user => ({
+                email: user.email,
+                noticeNotifications: user.noticeNotifications
+            }))
+        );
 
         if (users.length === 0) {
             console.log("No users available for notice notification");

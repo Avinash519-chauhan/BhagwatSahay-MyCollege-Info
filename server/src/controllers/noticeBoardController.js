@@ -18,6 +18,27 @@ const createNotice = async (req, res) => {
             return res.status(400).json({ msg: "Invalid User Id" })
         }
 
+        // DAILY NOTICE LIMIT
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
+
+        const todayNotice = await NoticeBoardModel.findOne({
+            userId: req.userId,
+            createdAt: {
+                $gte: startOfDay,
+                $lte: endOfDay
+            }
+        });
+
+        if (todayNotice) {
+            return res.status(429).json({
+                msg: "You can post only 1 notice per day"
+            });
+        }
+
         let { description, lastDate } = noticeData;
 
         if (!isValid(description)) {

@@ -24,7 +24,7 @@ const noticeBoardSchema = new mongoose.Schema({
 
 noticeBoardSchema.index(
     {createdAt:1},
-    {expireAfterSeconds:20*24*60*60}
+    {expireAfterSeconds:15*24*60*60}
 );
 
 module.exports = mongoose.model("noticeBoard", noticeBoardSchema);
