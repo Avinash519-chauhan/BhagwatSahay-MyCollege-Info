@@ -40,8 +40,6 @@ const NoticeBoardData = () => {
 
             const response = await api.get("/notice/get-notice");
 
-            console.log("Notice API response:", response.data);
-
             setNotices(response.data.notices)
 
         } catch (error) {
