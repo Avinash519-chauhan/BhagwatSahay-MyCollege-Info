@@ -1,9 +1,10 @@
-import {FaEnvelope,FaLock,FaEye,FaEyeSlash,FaGraduationCap} from "react-icons/fa";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaGraduationCap } from "react-icons/fa";
 
 import { Link, useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify"
 import api from "../../services/api"
+import { useAuth } from "../../context/AuthContext";
 
 import campusGate from "../../assets/collegeGate.jpeg"
 import campusBuilding from "../../assets/collegeBuilding.jpeg"
@@ -11,11 +12,12 @@ import campusScience from "../../assets/collegeC-block.jpeg"
 
 const Login = () => {
     const navigate = useNavigate();
+    const { setUser } = useAuth();
 
-    useEffect(()=> {
+    useEffect(() => {
         const params = new URLSearchParams(window.location.search);
 
-        if(params.get("verified") === "true"){
+        if (params.get("verified") === "true") {
             toast.success(
                 "Email verified successfully. You can now login."
             );
@@ -26,7 +28,7 @@ const Login = () => {
                 window.location.pathname
             );
         }
-    },[]);
+    }, []);
 
     const [formData, setFormData] = useState({
         email: "",
@@ -61,14 +63,16 @@ const Login = () => {
                 password: formData.password,
             });
 
-            const role = response?.data?.user?.role;
+            const loggedInUser = response?.data?.user;
+
+            setUser(loggedInUser);
 
             toast.success(response.data.msg || "Login Successful");
 
-            if (role === "admin") {
-                navigate("/admin/dashboard")
+            if (loggedInUser?.role === "admin") {
+                navigate("/admin/dashboard");
             } else {
-                navigate("/home")
+                navigate("/home");
             }
 
         } catch (error) {
@@ -297,7 +301,7 @@ const Login = () => {
                                 <input
                                     id="password"
                                     name="password"
-                                    type={showPassword? "text": "password"}
+                                    type={showPassword ? "text" : "password"}
                                     value={formData.password}
                                     onChange={changeHandler}
                                     placeholder="••••••••"
@@ -305,11 +309,11 @@ const Login = () => {
                                 />
                                 <button
                                     type="button"
-                                    onClick={()=>setShowPassword(!showPassword)}
+                                    onClick={() => setShowPassword(!showPassword)}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[#2B2D42]/40"
                                     aria-label="Show password"
                                 >
-                                    {showPassword? <FaEyeSlash size={15} /> : <FaEye size={15} />}
+                                    {showPassword ? <FaEyeSlash size={15} /> : <FaEye size={15} />}
                                 </button>
                             </div>
                         </div>
