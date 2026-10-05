@@ -112,33 +112,33 @@ const signupUser = async (req, res) => {
         const verificationLink =
             `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
 
-        try {
-            await sendConfermationEmail(
-                userAdded.email,
-                userAdded.fullName,
-                verificationLink
-            );
-        } catch (emailError) {
+        // try {
+        //     await sendConfermationEmail(
+        //         userAdded.email,
+        //         userAdded.fullName,
+        //         verificationLink
+        //     );
+        // } catch (emailError) {
 
-            console.log("Verification email failed:", emailError);
+        //     console.log("Verification email failed:", emailError);
 
-            try {
-                const deletedUser = await UserModel.findByIdAndDelete(userAdded._id);
+        //     try {
+        //         const deletedUser = await UserModel.findByIdAndDelete(userAdded._id);
 
-                if (deletedUser) {
-                    console.log("Signup rollback successful:", deletedUser.email);
-                } else {
-                    console.log("Signup rollback failed: user not found");
-                }
+        //         if (deletedUser) {
+        //             console.log("Signup rollback successful:", deletedUser.email);
+        //         } else {
+        //             console.log("Signup rollback failed: user not found");
+        //         }
 
-            } catch (deleteError) {
-                console.log("Signup rollback database error:", deleteError);
-            }
+        //     } catch (deleteError) {
+        //         console.log("Signup rollback database error:", deleteError);
+        //     }
 
-            return res.status(503).json({
-                msg: "Unable to send verification email. Please try again."
-            });
-        }
+        //     return res.status(503).json({
+        //         msg: "Unable to send verification email. Please try again."
+        //     });
+        // }
 
         return res.status(201).json({ msg: "SignUp Successfully", userAdded });
     } catch (error) {
