@@ -107,15 +107,26 @@ const signupUser = async (req, res) => {
             { expiresIn: "5m" }
         );
 
-        //verification link
-        const verificationLink = `http://localhost:5000/users/verify-email/${verificationToken}`
+        const verificationLink =
+            `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
 
-        //send confermation email
-        await sendConfermationEmail(
-            userAdded.email,
-            userAdded.fullName,
-            verificationLink
-        );
+        try {
+            await sendConfermationEmail(
+                userAdded.email,
+                userAdded.fullName,
+                verificationLink
+            );
+        } catch (emailError) {
+
+            console.log("Verification email failed:", emailError);
+
+            //Remove the account because verification email was not sent
+            await UserModel.findByIdAndDelete(userAdded._id);
+
+            return res.status(503).json({
+                msg: "Unable to send verification email. Please try again."
+            });
+        }
 
         return res.status(201).json({ msg: "SignUp Successfully", userAdded });
     } catch (error) {
@@ -387,16 +398,16 @@ const adminDeleteUser = async (req, res) => {
 
 //admin banned email
 
-const banEmail = async(req,res)=> {
+const banEmail = async (req, res) => {
     try {
-        const {email} = req.body;
+        const { email } = req.body;
 
-        if(!isValid(email)){
-            return res.status(400).json({msg: "Email is Required"});
+        if (!isValid(email)) {
+            return res.status(400).json({ msg: "Email is Required" });
         }
 
-        if(!isValidEmail(email)){
-            return res.status(400).json({msg: "Invalid Email"})
+        if (!isValidEmail(email)) {
+            return res.status(400).json({ msg: "Invalid Email" })
         };
 
         const normalizedEmail = email.trim().toLowerCase();
