@@ -40,13 +40,15 @@ const signupUser = async (req, res) => {
             return res.status(400).json({ msg: "Invalid Email! use @gmail.com" })
         }
 
-        let duplicateEmail = await UserModel.findOne({ email });
+        const normalizedEmail = email.trim().toLowerCase();
+
+        let duplicateEmail = await UserModel.findOne({ email: normalizedEmail });
 
         if (duplicateEmail) {
             return res.status(401).json({ msg: "Emial is already Exist" })
         }
 
-        const bannedEmail = await BannedEmailModel.findOne({ email });
+        const bannedEmail = await BannedEmailModel.findOne({ email: normalizedEmail });
 
         if (bannedEmail) {
             return res.status(403).json({
@@ -97,7 +99,7 @@ const signupUser = async (req, res) => {
 
         //create user
         let userAdded = await UserModel.create({
-            fullName, email, password: hashedPassword, degreeName, year
+            fullName, email: normalizedEmail, password: hashedPassword, degreeName, year
         });
 
         //verification token
@@ -120,8 +122,18 @@ const signupUser = async (req, res) => {
 
             console.log("Verification email failed:", emailError);
 
-            //Remove the account because verification email was not sent
-            await UserModel.findByIdAndDelete(userAdded._id);
+            try {
+                const deletedUser = await UserModel.findByIdAndDelete(userAdded._id);
+
+                if (deletedUser) {
+                    console.log("Signup rollback successful:", deletedUser.email);
+                } else {
+                    console.log("Signup rollback failed: user not found");
+                }
+
+            } catch (deleteError) {
+                console.log("Signup rollback database error:", deleteError);
+            }
 
             return res.status(503).json({
                 msg: "Unable to send verification email. Please try again."
