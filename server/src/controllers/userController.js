@@ -109,8 +109,8 @@ const signupUser = async (req, res) => {
             { expiresIn: "5m" }
         );
 
-        const verificationLink =
-            `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
+        // const verificationLink =
+        //     `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
 
         // try {
         //     await sendConfermationEmail(
@@ -190,7 +190,7 @@ const loginUser = async (req, res) => {
             return res.status(400).json({ msg: "Password is Required" })
         }
 
-        let user = await UserModel.findOne({ email });
+        let user = await UserModel.findOne({ email: normalizedEmail });
 
         if (!user) {
             return res.status(404).json({ msg: "User Not Found" });
