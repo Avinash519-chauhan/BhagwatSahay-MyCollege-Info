@@ -190,6 +190,8 @@ const loginUser = async (req, res) => {
             return res.status(400).json({ msg: "Password is Required" })
         }
 
+        const normalizedEmail = email.trim().toLowerCase();
+
         let user = await UserModel.findOne({ email: normalizedEmail });
 
         if (!user) {
